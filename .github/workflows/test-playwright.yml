@@ -2,6 +2,14 @@ name: Test
 
 on:
   pull_request:
+    types:
+      # If the pull request description is edited the e2e tests will run again.
+      # E.g. when checking / unchecking the command checkbox.
+      - edited
+      # Add back the default event types.
+      - opened
+      - synchronize
+      - reopened
 
 jobs:
   playwright:
