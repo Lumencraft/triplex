@@ -84,4 +84,4 @@ jobs:
         run: npx ovsx publish $VSIX_PATH --pat $OPENVSX_TOKEN --no-dependencies --skip-duplicate
         if: steps.check.outcome == 'success'
         env:
-          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+          OPENVSX_TOKEN: ${{ secrets.OPENVSX_TOKEN }}
