@@ -21,6 +21,62 @@ export interface ResolvedNode {
  * matches the filter. The meta in each return object is the meta from the
  * matching direct or parent object.
  */
+/**
+ * **hasAncestorWithMeta()**
+ *
+ * Checks if a node has a DOM ancestor that either:
+ * 1. Has meta matching the target meta, OR
+ * 2. Has the target meta in its parents chain
+ *
+ * This ensures that when we match against parent meta, we only match nodes
+ * that are actually descendants of that parent in the DOM tree. This handles
+ * both regular DOM elements and non-rendering components like Fragment.
+ *
+ * Returns true if:
+ * - An ancestor with matching meta is found, OR
+ * - No triplex-tagged ancestors exist (allowing non-rendering parent components)
+ */
+function hasAncestorWithMeta(
+  node: Node,
+  targetMeta: { path: string; column: number; line: number },
+): boolean {
+  let current = node.parentElement;
+  let foundAnyTriplexAncestor = false;
+
+  while (current) {
+    if (hasTriplexMeta(current)) {
+      foundAnyTriplexAncestor = true;
+      const ancestorMeta = getTriplexMeta(current);
+      if (ancestorMeta) {
+        // Check if the ancestor itself matches the target
+        if (
+          ancestorMeta.path === targetMeta.path &&
+          ancestorMeta.column === targetMeta.column &&
+          ancestorMeta.line === targetMeta.line
+        ) {
+          return true;
+        }
+
+        // Check if the ancestor has the target in its parents
+        for (const parent of ancestorMeta.parents) {
+          if (
+            parent.path === targetMeta.path &&
+            parent.column === targetMeta.column &&
+            parent.line === targetMeta.line
+          ) {
+            return true;
+          }
+        }
+      }
+    }
+    current = current.parentElement;
+  }
+
+  // If we didn't find any triplex-tagged ancestors, allow the match
+  // This handles cases like Fragment where the parent doesn't render a DOM element
+  return !foundAnyTriplexAncestor;
+}
+
 export function resolveDOMNodes(selections: SelectionState[]): ResolvedNode[] {
   const nodes: ResolvedNode[] = [];
   const iterator = document.createNodeIterator(
@@ -65,7 +121,16 @@ export function resolveDOMNodes(selections: SelectionState[]): ResolvedNode[] {
             filter.line === parent.line,
         );
 
-        if (isParentMatch !== -1) {
+        // Only add the node if the parent match exists AND the parent is an actual
+        // DOM ancestor of the current node
+        if (
+          isParentMatch !== -1 &&
+          hasAncestorWithMeta(node, {
+            column: parent.column,
+            line: parent.line,
+            path: parent.path,
+          })
+        ) {
           nodes.push({
             meta: parent,
             node,
