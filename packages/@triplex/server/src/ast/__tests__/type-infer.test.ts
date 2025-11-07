@@ -682,14 +682,14 @@ describe("type infer", () => {
   // TODO: How do we get access to the concrete AST of a component declared using
   // React.FC? It's currently unknown so this test isn't showing the correct data
   // it's missing default props!
-  it.todo("should infer default props from a jsx element React.FC decl", () => {
+  it.only("should infer default props from a jsx element React.FC decl", () => {
     const project = _createProject({
       tsConfigFilePath: join(__dirname, "__mocks__/tsconfig.json"),
     });
     const sourceFile = project.addSourceFileAtPath(
-      join(__dirname, "__mocks__/default-props.tsx"),
+      join(__dirname, "__mocks__/type-extraction.tsx"),
     );
-    const sceneObject = getJsxElementAtOrThrow(sourceFile, 14, 7);
+    const sceneObject = getJsxElementAtOrThrow(sourceFile, 102, 7);
 
     const { props } = getJsxElementPropTypes(sceneObject);
 
