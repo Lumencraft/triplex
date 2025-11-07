@@ -6,7 +6,7 @@
  */
 import { useThree } from "@react-three/fiber";
 import { on } from "@triplex/bridge/client";
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 /**
  * Progressive frameloop configuration
@@ -35,46 +35,50 @@ export function useProgressiveFrameloop() {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const intervalIndexRef = useRef(0);
   const isActiveRef = useRef(true);
-
-  const clearTimer = useCallback(() => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-  }, []);
-
-  const scheduleNextRender = useCallback(() => {
-    clearTimer();
-
-    const currentInterval =
-      PROGRESSIVE_INTERVALS[intervalIndexRef.current] || 1000;
-
-    timerRef.current = setTimeout(() => {
-      invalidate();
-
-      // Progress to next slower interval if not at the floor
-      if (
-        intervalIndexRef.current <
-        PROGRESSIVE_INTERVALS.length - 1
-      ) {
-        intervalIndexRef.current++;
-      }
-
-      // Schedule next render
-      scheduleNextRender();
-    }, currentInterval);
-  }, [clearTimer, invalidate]);
-
-  const resetToFastRendering = useCallback(() => {
-    // Reset to initial fast interval
-    intervalIndexRef.current = 0;
-    isActiveRef.current = true;
-    clearTimer();
-    scheduleNextRender();
-    invalidate();
-  }, [clearTimer, scheduleNextRender, invalidate]);
+  const scheduleNextRenderRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
+    const clearTimer = () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+
+    const scheduleNextRender = () => {
+      clearTimer();
+
+      const currentInterval =
+        PROGRESSIVE_INTERVALS[intervalIndexRef.current] || 1000;
+
+      timerRef.current = setTimeout(() => {
+        invalidate();
+
+        // Progress to next slower interval if not at the floor
+        if (
+          intervalIndexRef.current <
+          PROGRESSIVE_INTERVALS.length - 1
+        ) {
+          intervalIndexRef.current++;
+        }
+
+        // Schedule next render
+        scheduleNextRender();
+      }, currentInterval);
+    };
+
+    // Store reference for cleanup and reset function
+    scheduleNextRenderRef.current = scheduleNextRender;
+
+    const resetToFastRendering = () => {
+      // Reset to initial fast interval
+      intervalIndexRef.current = 0;
+      isActiveRef.current = true;
+      clearTimer();
+      scheduleNextRender();
+      invalidate();
+    };
+
     // Start the progressive rendering loop
     scheduleNextRender();
 
@@ -127,7 +131,7 @@ export function useProgressiveFrameloop() {
         window.removeEventListener(event, handleUserInteraction);
       });
     };
-  }, [clearTimer, resetToFastRendering, scheduleNextRender]);
+  }, [invalidate]);
 
   return null;
 }
