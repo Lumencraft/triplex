@@ -19,3 +19,8 @@ Visit https://triplex.dev/docs/building-your-scene to learn more.
 ## Contributions
 
 Contributions are welcomed! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) to get started. If you haven't already make sure to join the Poimandres [Discord community](https://discord.gg/SUHCwfEk).
+
+<br />
+<a href="https://vercel.com/oss">
+  <img alt="Vercel OSS Program" src="https://vercel.com/oss/program-badge.svg" />
+</a>
