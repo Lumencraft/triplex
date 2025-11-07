@@ -9,7 +9,8 @@ export type Source = "react" | "three" | "unknown";
 
 export type Mutation =
   | { redoID: number; status: "modified"; undoID: number }
-  | { status: "unmodified" };
+  | { status: "unmodified" }
+  | { error: string; status: "error" };
 
 export interface Transforms {
   rotate: boolean;

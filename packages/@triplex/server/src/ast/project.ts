@@ -291,7 +291,33 @@ export function ${componentName}() {
         ];
         let undoStackPointer = sourceFileHistoryPointer.get(sourceFile) || 0;
 
-        const result = await callback(sourceFile);
+        let result: TResult extends SourceFile ? never : TResult;
+
+        try {
+          result = await callback(sourceFile);
+        } catch (error) {
+          // Handle errors from ts-morph gracefully. These can occur when TypeScript
+          // encounters issues like circular imports or maximum call stack errors during
+          // import resolution. We log the error and return an error status to allow
+          // Triplex to continue working instead of crashing.
+          const err = error as Error;
+          // eslint-disable-next-line no-console
+          console.error(
+            "Error during source file manipulation:",
+            err.message,
+          );
+
+          // Reset the source file to its original state to maintain consistency
+          sourceFile.replaceWithText(currentFullText);
+
+          return [
+            {
+              error: err.message,
+              status: "error",
+            },
+            undefined as TResult extends SourceFile ? never : TResult,
+          ];
+        }
 
         const nextFullText = sourceFile.getFullText();
 

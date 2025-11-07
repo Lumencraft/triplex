@@ -498,4 +498,37 @@ describe("project ast", () => {
 
     expect(sourceFile.isDirty()).toEqual(true);
   });
+
+  it("should handle errors during edit gracefully", async () => {
+    const project = createProject({
+      cwd: process.cwd(),
+      templates: { newElements: "" },
+      tsConfigFilePath: join(__dirname, "__mocks__", "tsconfig.json"),
+    });
+    const sourceFile = project.getSourceFile(
+      join(__dirname, "__mocks__", "box.tsx"),
+    );
+    const originalText = sourceFile.read().getFullText();
+
+    const [ids, result] = await sourceFile.edit(() => {
+      // Simulate an error that might occur in ts-morph
+      throw new Error("Maximum call stack size exceeded");
+    });
+
+    // Should return error status
+    expect(ids.status).toEqual("error");
+    expect(ids).toHaveProperty("error");
+    if ("error" in ids) {
+      expect(ids.error).toContain("Maximum call stack");
+    }
+
+    // Result should be undefined when error occurs
+    expect(result).toBeUndefined();
+
+    // Source file should be reverted to original state
+    expect(sourceFile.read().getFullText()).toEqual(originalText);
+
+    // Source file should not be marked as dirty
+    expect(sourceFile.isDirty()).toEqual(false);
+  });
 });
