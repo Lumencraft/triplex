@@ -24,6 +24,7 @@ import { ThreeFiberSelection } from "../selection-three-fiber";
 import { CaptureShaderErrors } from "./capture-shader-errors";
 import { SceneLights } from "./scene-lights";
 import { useCanvasMounted } from "./store";
+import { useProgressiveFrameloop } from "./use-progressive-frameloop";
 
 /**
  * **Canvas**
@@ -54,6 +55,7 @@ export function Canvas({ children, ...props }: CanvasProps) {
 
   return (
     <FiberCanvas
+      frameloop="demand"
       shadows
       {...props}
       raycaster={{
@@ -67,6 +69,7 @@ export function Canvas({ children, ...props }: CanvasProps) {
       }}
       ref={ref}
     >
+      <ProgressiveFrameloop />
       <CaptureShaderErrors />
       <Camera>
         <ErrorBoundaryForScene
@@ -137,4 +140,12 @@ export function Canvas({ children, ...props }: CanvasProps) {
       </Camera>
     </FiberCanvas>
   );
+}
+
+/**
+ * Component that manages the progressive frameloop rendering
+ */
+function ProgressiveFrameloop() {
+  useProgressiveFrameloop();
+  return null;
 }
