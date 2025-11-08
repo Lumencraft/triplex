@@ -32,12 +32,3 @@ class Foo {
 
 function foo() {
 }
-
-class Foo {
-}
-
-class Foo {
-}
-
-function foo() {
-}
