@@ -69,8 +69,11 @@ jobs:
 
       - name: Read vsix
         id: vsix_version
+        if: steps.check.outcome == 'success'
         working-directory: apps/vscode/out
-        run: echo "VSIX_PATH=$(find . -name "*.vsix" -print -quit)" >> $GITHUB_ENV
+        run: |
+          if [ ! -d "apps/vscode/out" ]; then echo "apps/vscode/out missing; skipping"; exit 0; fi
+          echo "VSIX_PATH=$(find . -name "*.vsix" -print -quit)" >> $GITHUB_ENV
 
       - name: Release to code marketplace
         working-directory: apps/vscode/out
