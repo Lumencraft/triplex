@@ -45,6 +45,9 @@ export function _createProject({
     compilerOptions: {
       // This ensures that even if a project is misconfigured we can still infer types from JS.
       allowJs: true,
+      // Limit the depth TypeScript searches through node_modules to prevent stack overflow
+      // errors caused by deeply nested or circular package.json references.
+      maxNodeModuleJsDepth: 0,
       // This forces the module resolution to use the bundler algorithm. This fixes @react-three/uikit for use in Triplex
       // without userland needing to fix it.
       // See: https://devblogs.microsoft.com/typescript/announcing-typescript-5-0/#--moduleresolution-bundler
@@ -53,6 +56,9 @@ export function _createProject({
       // node_modules. We set this to false to ensure that consumers of triplex never run into
       // this.
       preserveSymlinks: false,
+      // Skip type checking of declaration files to reduce recursive imports and prevent
+      // maximum call stack errors when TypeScript walks complex node_modules structures.
+      skipLibCheck: true,
       // We turn this off so we can effectively ignore null and undefined when fetching
       // the types of jsx elements. This makes everything much easier to reason about.
       // Meaning instead of us having to manually iterate and ignore type values they just
@@ -62,12 +68,6 @@ export function _createProject({
       // We set this as an override but import the types from the options to ensure that we don't remove any
       // user defined types.
       types: (options?.types || []).concat(["@react-three/fiber", "react"]),
-      // Skip type checking of declaration files to reduce recursive imports and prevent
-      // maximum call stack errors when TypeScript walks complex node_modules structures.
-      skipLibCheck: true,
-      // Limit the depth TypeScript searches through node_modules to prevent stack overflow
-      // errors caused by deeply nested or circular package.json references.
-      maxNodeModuleJsDepth: 0,
     },
     defaultCompilerOptions: {
       // This is needed to keep JavaScript based projects working.
