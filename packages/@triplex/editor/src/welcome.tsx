@@ -117,7 +117,7 @@ function WelcomeScreen() {
             actionId="welcome_contact_discord"
             icon={DiscordLogoIcon}
             onClick={() =>
-              window.triplex.openLink("https://discord.gg/SUHCwfEk")
+              window.triplex.openLink("https://discord.gg/ZZjjNvJ")
             }
             size="tight"
           >

@@ -179,7 +179,7 @@ export function Footer() {
             <li>
               <Link
                 className="text-subtlest hover:text-subtle text-base"
-                href="https://discord.gg/SUHCwfEk"
+                href="https://https://discord.gg/ZZjjNvJ"
               >
                 Discord
               </Link>

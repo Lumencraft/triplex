@@ -70,7 +70,7 @@ export function Feedback() {
           Want to request a feature, report a bug, or talk to someone?{" "}
           <a
             className="text-link underline focus:outline-none"
-            href="https://discord.gg/SUHCwfEk"
+            href="https://discord.gg/ZZjjNvJ"
             onClick={() => telemetry.event("dialog_help_discord")}
           >
             Join the Discord community
